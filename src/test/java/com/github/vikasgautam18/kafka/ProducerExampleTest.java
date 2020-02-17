@@ -1,37 +1,46 @@
 package com.github.vikasgautam18.kafka;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.*;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Properties;
+import java.util.*;
+import org.junit.*;
+
+import static java.util.Collections.singleton;
 
 public class ProducerExampleTest {
 
     public static final String OUTPUT_TOPIC = "test_topic";
+    public static final String SECOND_TOPIC = "test_topic_2";
+    private static Consumer<Long, String> testConsumer;
+
     @ClassRule
     public static EmbeddedKafkaRule kafka = new EmbeddedKafkaRule(1,
             false, OUTPUT_TOPIC);
 
     @BeforeClass
-    public static void setKafka() {
-        kafka.brokerProperty("", "");
+    public static void setConsumer() {
+        Map<String, Object> configs = new HashMap<>(KafkaTestUtils.consumerProps("consumer", "false",
+                kafka.getEmbeddedKafka()));
+        testConsumer = new DefaultKafkaConsumerFactory<>(configs, new LongDeserializer(), new StringDeserializer())
+                .createConsumer();
+        testConsumer.subscribe(singleton(SECOND_TOPIC));
+        testConsumer.poll(Duration.ofMillis(1000));
+
     }
+
     @AfterClass
     public static void tearDown() {
         kafka.getEmbeddedKafka().destroy();
-
     }
 
     @Test
@@ -88,5 +97,25 @@ public class ProducerExampleTest {
         Assert.assertEquals(1, records.count());
         Assert.assertEquals("message", records.iterator().next().value());
         Assert.assertEquals(timestamp, records.iterator().next().key());
+    }
+
+    @Test
+    public void testWithKafkaUtils() {
+
+        final Long timestamp = new Date().getTime();
+        Map<String, Object> configs = new HashMap<>(KafkaTestUtils.producerProps(kafka.getEmbeddedKafka()));
+        Producer<Long, String> producer = new DefaultKafkaProducerFactory<>(configs,
+                new LongSerializer(), new StringSerializer()).createProducer();
+
+        // add data to topic
+        producer.send(new ProducerRecord<>(SECOND_TOPIC, timestamp, "hello"));
+        producer.flush();
+
+        // Assert results
+        ConsumerRecord<Long, String> singleRecord = KafkaTestUtils.getSingleRecord(testConsumer, SECOND_TOPIC);
+        Assert.assertNotNull(singleRecord);
+        Assert.assertEquals(timestamp, singleRecord.key());
+        Assert.assertEquals("hello", singleRecord.value());
+
     }
 }
