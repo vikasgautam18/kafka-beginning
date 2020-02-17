@@ -27,22 +27,20 @@ public class ProducerExample {
         properties.setProperty(ProducerConfig.COMPRESSION_TYPE_CONFIG, producerProps.getString(COMPRESSION_TYPE));
 
         // Producer Instance
-        KafkaProducer<Long, String> producer = new KafkaProducer<Long, String>(properties);
+        KafkaProducer<Long, String> producer = new KafkaProducer<>(properties);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             ProducerRecord<Long, String> record =
-                    new ProducerRecord<Long, String>(producerProps.getString(OUTPUT_TOPIC), new Date().getTime(),
+                    new ProducerRecord<>(producerProps.getString(OUTPUT_TOPIC), new Date().getTime(),
                             String.format("messagq %s", i));
 
             // Publish message
-            producer.send(record, new Callback() {
-                public void onCompletion(RecordMetadata recordMetadata, Exception e) {
-                    if(e != null)
-                        logger.error("Error producing record:: ", e);
-                    else
-                        logger.info(String.format("Message was successfully produced to offset %s on partition %s at timestamp %s",
-                                recordMetadata.offset(), recordMetadata.partition(), recordMetadata.timestamp()));
-                }
+            producer.send(record, (recordMetadata, e) -> {
+                if(e != null)
+                    logger.error("Error producing record:: ", e);
+                else
+                    logger.info(String.format("Message was successfully produced to offset %s on partition %s at timestamp %s",
+                            recordMetadata.offset(), recordMetadata.partition(), recordMetadata.timestamp()));
             });
         }
         producer.close();
