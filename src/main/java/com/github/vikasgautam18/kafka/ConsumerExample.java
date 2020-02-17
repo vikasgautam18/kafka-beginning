@@ -13,11 +13,17 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+
+import static com.github.vikasgautam18.kafka.Constants.*;
 
 public class ConsumerExample {
 
+    private static ResourceBundle consumerProps = ResourceBundle.getBundle("consumer");
+
     public static void main(String[] args) {
+
         new ConsumerExample().run();
     }
 
@@ -26,11 +32,8 @@ public class ConsumerExample {
     }
 
     private void run() {
-        Logger logger = LoggerFactory.getLogger(ConsumerExample.class.getName());
 
-        String bootstrapServers = "127.0.0.1:9092";
-        String groupId = "group-id-18022020";
-        String topic = "test_vikas";
+        Logger logger = LoggerFactory.getLogger(ConsumerExample.class.getName());
 
         // latch for dealing with multiple threads
         CountDownLatch latch = new CountDownLatch(1);
@@ -38,9 +41,9 @@ public class ConsumerExample {
         // create the consumer runnable
         logger.info("Creating the consumer thread");
         ConsumerRunnable myConsumerRunnable = new ConsumerRunnable(
-                bootstrapServers,
-                groupId,
-                topic,
+                consumerProps.getString(BOOTSTRAP_SERVERS),
+                consumerProps.getString(GRP_ID_PREFIX) + "-18022020",
+                consumerProps.getString(OUTPUT_TOPIC),
                 latch
         );
 
