@@ -56,7 +56,6 @@ public static void setConsumer() {
             .createConsumer();
     testConsumer.subscribe(singleton(KAFKA_TOPIC));
     testConsumer.poll(Duration.ofMillis(1000));
-
 }
 ```
 
@@ -71,7 +70,6 @@ Producer<Long, String> producer = new DefaultKafkaProducerFactory<>(configs,
 // add data to topic
 producer.send(new ProducerRecord<>(KAFKA_TOPIC, timestamp, "hello"));
 producer.flush();
-        
 ```
 
 finally, in order to verify the data written to topic:
