@@ -2,7 +2,7 @@
 
 Automated integration tests with Kafka are quite complex because of it's streaming and disconnected nature. One part fo the application keeps producing messages while the other part keeps consuming and for them to be tested end to end together is challenging.
 
-The Spring Kafka Test library provides an embedded Kafka broker and a Kafka Testing util that works great for this purpose.
+The `spring-kafka-test` library provides an embedded Kafka broker and a Kafka Testing util that works great for this purpose.
 
 To begin with add the below dependencies to your pom file:
 
@@ -30,9 +30,9 @@ To begin with add the below dependencies to your pom file:
 
 # How to use the Enbedded Kafka Server?
 
-Spring Kafka test framework provides a JUnit @Rule wrapper for the EmbeddedKafkaBroker to create an embedded Kafka and an embedded Zookeeper server.
+`spring-kafka-test` library provides a JUnit @Rule wrapper for the `EmbeddedKafkaBroker` to create an embedded Kafka and an embedded Zookeeper server.
 
-The EmbeddedKafkaRule constructor function takes the following values as parameters.
+The `EmbeddedKafkaRule` constructor function takes the following values as parameters.
 - The number of Kafka servers to start.
 - Whether a controlled shutdown is required.
 - Issues that need to be created on the server.
@@ -43,7 +43,7 @@ The EmbeddedKafkaRule constructor function takes the following values as paramet
             false, KAFKA_TOPIC);
 ```
 
-Now that the embedded serveris fired up, one can start producing and consuming data.
+Now that the embedded server is fired up, one can start producing and consuming data.
 
 **Example set up for a consumer:**
 
