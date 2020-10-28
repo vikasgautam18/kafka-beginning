@@ -42,7 +42,7 @@ public class ConsumerExample {
         logger.info("Creating the consumer thread");
         ConsumerRunnable myConsumerRunnable = new ConsumerRunnable(
                 consumerProps.getString(BOOTSTRAP_SERVERS),
-                consumerProps.getString(GRP_ID_PREFIX) + "-18022020",
+                consumerProps.getString(GRP_ID_PREFIX) + "-18022022",
                 consumerProps.getString(OUTPUT_TOPIC),
                 latch
         );
